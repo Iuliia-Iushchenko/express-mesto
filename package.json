@@ -1,0 +1,33 @@
+{
+  "name": "express-mesto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Iuliia-Iushchenko/express-mesto.git"
+  },
+  "keywords": [],
+  "author": "Iuliia Iushchenko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Iuliia-Iushchenko/express-mesto/issues"
+  },
+  "homepage": "https://github.com/Iuliia-Iushchenko/express-mesto#readme",
+  "dependencies": {
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^3.9.0",
+    "@typescript-eslint/parser": "^3.9.0",
+    "eslint": "^7.7.0",
+    "eslint-plugin-react": "^7.20.6",
+    "nodemon": "^2.0.4"
+  }
+}
