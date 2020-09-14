@@ -6,7 +6,7 @@ const getAllCards = (req, res) => {
     .then((cards) => res.status(200).send(cards))
     .catch((err) => {
       console.log(err);
-      return res.status(err.message ? 404 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
@@ -16,19 +16,26 @@ const createCard = (req, res) => {
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       console.log(err);
-      return res.status(err.message ? 404 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: err.message });
+        return;
+      }
+      res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
 const deleteCard = (req, res) => Card.findByIdAndRemove(req.params.id)
-  .orFail(new Error('NotValidId'))
+  .orFail()
   .then((card) => res.send(card))
   .catch((err) => {
-    if (err.message === 'NotValidId') {
+    console.log(err);
+    if (err.name === 'DocumentNotFoundError') {
       return res.status(404).send({ message: 'Карточки с таким id не существует' });
     }
-    console.log(err);
-    return res.status(err.message ? 400 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+    if (err.name === 'ValidationError') {
+      return res.status(400).send({ message: err.message });
+    }
+    return res.status(500).send({ message: 'На сервере произошла ошибка.' });
   });
 
 const likeCard = (req, res) => Card.findByIdAndUpdate(
@@ -36,14 +43,17 @@ const likeCard = (req, res) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
-  .orFail(new Error('NotValidId'))
+  .orFail()
   .then((likes) => res.send({ data: likes }))
   .catch((err) => {
-    if (err.message === 'NotValidId') {
+    console.log(err);
+    if (err.name === 'DocumentNotFoundError') {
       return res.status(404).send({ message: 'Карточки с таким id не существует' });
     }
-    console.log(err);
-    return res.status(err.message ? 400 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+    if (err.name === 'ValidationError') {
+      return res.status(400).send({ message: err.message });
+    }
+    return res.status(500).send({ message: 'На сервере произошла ошибка.' });
   });
 
 const dislikeCard = (req, res) => Card.findByIdAndUpdate(
@@ -51,14 +61,17 @@ const dislikeCard = (req, res) => Card.findByIdAndUpdate(
   { $pull: { likes: req.user._id } },
   { new: true },
 )
-  .orFail(new Error('NotValidId'))
+  .orFail()
   .then((likes) => res.send({ data: likes }))
   .catch((err) => {
-    if (err.message === 'NotValidId') {
+    console.log(err);
+    if (err.name === 'DocumentNotFoundError') {
       return res.status(404).send({ message: 'Карточки с таким id не существует' });
     }
-    console.log(err);
-    return res.status(err.message ? 400 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+    if (err.name === 'ValidationError') {
+      return res.status(400).send({ message: err.message });
+    }
+    return res.status(500).send({ message: 'На сервере произошла ошибка.' });
   });
 
 module.exports = {

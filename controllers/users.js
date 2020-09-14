@@ -7,19 +7,19 @@ const getAllUsers = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((err) => {
       console.log(err);
-      return res.status(err.message ? 404 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
 const getUser = (req, res) => User.findById(req.params.id)
-  .orFail(new Error('NotValidId'))
+  .orFail()
   .then((user) => res.status(200).send(user))
   .catch((err) => {
-    if (err.message === 'NotValidId') {
+    console.log(err);
+    if (err.name === 'DocumentNotFoundError') {
       return res.status(404).send({ message: 'Нет пользователя с таким id' });
     }
-    console.log(err);
-    return res.status(err.message ? 400 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+    return res.status(500).send({ message: 'На сервере произошла ошибка.' });
   });
 
 const createUser = (req, res) => {
@@ -28,39 +28,44 @@ const createUser = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       console.log(err);
-      return res.status(err.message ? 404 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: err.message });
+      }
+      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .then((user) => {
-      if (user) {
-        res.send(user);
-        return;
-      }
-      res.status(404).send({ message: 'Нет пользователя с таким id' });
-    })
+    .orFail()
+    .then((user) => res.send(user))
     .catch((err) => {
       console.log(err);
-      return res.status(err.message ? 400 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+      }
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: err.message });
+      }
+      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
 const uppdateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .then((user) => {
-      if (user) {
-        res.send(user);
-        return;
-      }
-      res.status(404).send({ message: 'Нет пользователя с таким id' });
-    })
+    .orFail()
+    .then((user) => res.send(user))
     .catch((err) => {
       console.log(err);
-      return res.status(err.message ? 400 : 500).send({ message: err.message || 'На сервере произошла ошибка.' });
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'Нет пользователя с таким id' });
+      }
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: err.message });
+      }
+      return res.status(500).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
